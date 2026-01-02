@@ -1,0 +1,105 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-fantasy-dark: var(--bg-dark);
+  --color-fantasy-secondary: var(--bg-secondary);
+  --color-fantasy-accent: var(--bg-accent);
+  --color-fantasy-text: var(--text-primary);
+  --color-fantasy-gold: var(--text-gold);
+  --color-fantasy-silver: var(--text-silver);
+  --color-fantasy-muted: var(--text-muted);
+  --color-fantasy-hover: var(--bg-hover);
+
+  --font-sans: "Alegreya Sans", sans-serif;
+  --font-serif: "Alegreya Sans", sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 4px;
+  border: 1px solid #2d3748;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* Theme Variables */
+:root {
+  --bg-dark: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-accent: #e94560;
+  --text-primary: #e0e0e0;
+  --text-gold: #ffd700;
+  --text-muted: #9ca3af;
+  /* gray-400 */
+  --text-silver: #d1d5db;
+  /* gray-300 */
+  --bg-hover: #1f2937;
+  /* gray-800 */
+}
+
+.light-theme {
+  --bg-dark: #f4e4bc;
+  --bg-secondary: #e6d2a0;
+  --bg-accent: #8b4513;
+  --text-primary: #2c1810;
+  --text-gold: #b8860b;
+  --text-muted: #4b5563;
+  /* gray-600 - Darker for better contrast on light bg */
+  --text-silver: #475569;
+  /* slate-600 - Darker silver for light bg */
+  --bg-hover: #d1bfa0;
+  /* Darker beige for hover */
+}
+
+:root {
+  font-family: "Alegreya Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  @apply bg-fantasy-dark text-fantasy-text;
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Override Tailwind Typography defaults */
+.prose p {
+  margin-top: 0;
+}
+
+/* Global button style */
+button {
+  cursor: pointer;
+}

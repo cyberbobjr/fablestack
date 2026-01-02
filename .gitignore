@@ -1,0 +1,15 @@
+venv
+.env
+.pytest_cache
+__pycache__
+data/sessions
+back/data/sessions
+back/gamedata/sessions/
+back/gamedata/characters
+back/gamedata/users.json
+console.log
+console.log.*
+back/config.yaml
+back/static/**
+back/.logfire
+docs/articles

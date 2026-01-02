@@ -1,0 +1,258 @@
+# Unified Skills Data File
+# Contains all skill-related data: descriptions, affinities, stat bonuses, and translation IDs
+
+skill_groups:
+  artistic:
+    name: "Artistic"
+    skills:
+      comedy:
+        id: "comedy"
+        name: "Comedy"
+        description: "Ability to play a role and imitate the actions of others. Does not modify physical appearance."
+        base_stat: "charisma"
+      dance:
+        id: "dance"
+        name: "Dance"
+        description: "Art of mastering rhythmic movements and reproducing or creating dances."
+        base_stat: "agility"
+      imitation:
+        id: "imitation"
+        name: "Imitation"
+        description: "Talent for convincingly reproducing voices and sounds."
+        base_stat: "charisma"
+      music_singing:
+        id: "music_singing"
+        name: "Music - Singing"
+        description: "Mastery of voice for singing and musical interpretation."
+        base_stat: "charisma"
+      music_instrument:
+        id: "music_instrument"
+        name: "Music - Instrument"
+        description: "Ability to play a specific musical instrument."
+        base_stat: "charisma"
+      storytelling:
+        id: "storytelling"
+        name: "Storytelling"
+        description: "Art of telling stories in a captivating and memorable way."
+        base_stat: "charisma"
+        stat_bonuses:
+          charisma:
+            min_value: 14
+            bonus_points: 3
+
+  magic_arts:
+    name: "Magic Arts"
+    skills:
+      alchemy:
+        id: "alchemy"
+        name: "Alchemy"
+        description: "Art of creating potions and substances from natural ingredients."
+        base_stat: "intelligence"
+      ancient_history:
+        id: "ancient_history"
+        name: "Ancient History"
+        description: "Knowledge of past ages, legends, and lost civilizations."
+        base_stat: "intelligence"
+        stat_bonuses:
+          intelligence:
+            min_value: 14
+            bonus_points: 3
+      runes:
+        id: "runes"
+        name: "Runes"
+        description: "Reading and creating inscriptions in ancient alphabets (Cirth, Tengwar)."
+        base_stat: "intelligence"
+      shadow_lore:
+        id: "shadow_lore"
+        name: "Shadow Lore"
+        description: "Knowledge of the Enemy, their servants, and their dark arts."
+        base_stat: "intelligence"
+
+  athletic:
+    name: "Athletic"
+    skills:
+      acrobatics:
+        id: "acrobatics"
+        name: "Acrobatics"
+        description: "Ability to perform complex and acrobatic movements, including fall management."
+        base_stat: "agility"
+        stat_bonuses:
+          agility:
+            min_value: 14
+            bonus_points: 3
+      climbing:
+        id: "climbing"
+        name: "Climbing"
+        description: "Ability to climb various vertical surfaces."
+        base_stat: "agility"
+      riding:
+        id: "riding"
+        name: "Riding"
+        description: "Skill in riding horses and other mounts."
+        base_stat: "agility"
+      swimming:
+        id: "swimming"
+        name: "Swimming"
+        description: "Ability to swim and move in water."
+        base_stat: "strength"
+
+  combat:
+    name: "Combat"
+    skills:
+      brawl:
+        id: "brawl"
+        name: "Brawl"
+        description: "Unarmed fighting using natural strength."
+        base_stat: "strength"
+      weapon_handling:
+        id: "weapon_handling"
+        name: "Weapon Handling"
+        description: "Ability to effectively use weapons."
+        base_stat: "strength"
+        stat_bonuses:
+          strength:
+            min_value: 14
+            bonus_points: 3
+      combat_style:
+        id: "combat_style"
+        name: "Combat Style"
+        description: "Advanced combat techniques and maneuvers."
+        base_stat: "agility"
+
+  general:
+    name: "General"
+    skills:
+      crafting:
+        id: "crafting"
+        name: "Crafting"
+        description: "Ability to create and repair objects (smithing, carpentry, etc.)."
+        base_stat: "intelligence"
+      diplomacy:
+        id: "diplomacy"
+        name: "Diplomacy"
+        description: "Ability to negotiate, persuade, and navigate social situations."
+        base_stat: "charisma"
+      general_knowledge:
+        id: "general_knowledge"
+        name: "General Knowledge"
+        description: "Knowledge of geography, customs, and daily life."
+        base_stat: "intelligence"
+        stat_bonuses:
+          intelligence:
+            min_value: 14
+            bonus_points: 2
+      herbalism:
+        id: "herbalism"
+        name: "Herbalism"
+        description: "Knowledge of plants, healing herbs, and their uses."
+        base_stat: "intelligence"
+      language:
+        id: "language"
+        name: "Language"
+        description: "Mastery of additional languages."
+        base_stat: "intelligence"
+      leadership:
+        id: "leadership"
+        name: "Leadership"
+        description: "Ability to inspire, command, and boost morale."
+        base_stat: "charisma"
+      perception:
+        id: "perception"
+        name: "Perception"
+        description: "Ability to notice details and detect hidden things."
+        base_stat: "wisdom"
+        stat_bonuses:
+          wisdom:
+            min_value: 14
+            bonus_points: 3
+      riddles:
+        id: "riddles"
+        name: "Riddles"
+        description: "Art of proposing and solving riddles, a respected tradition."
+        base_stat: "intelligence"
+      stealth:
+        id: "stealth"
+        name: "Stealth"
+        description: "Ability to move silently and hide."
+        base_stat: "agility"
+      survival:
+        id: "survival"
+        name: "Survival"
+        description: "Ability to survive in the wild (finding food, shelter)."
+        base_stat: "wisdom"
+      tracking:
+        id: "tracking"
+        name: "Tracking"
+        description: "Ability to follow tracks and identify signs of passage."
+        base_stat: "wisdom"
+      body_resistance:
+        id: "body_resistance"
+        name: "Body Resistance"
+        description: "Ability to resist physical effects, fatigue, and poisons."
+        base_stat: "constitution"
+      mind_resistance:
+        id: "mind_resistance"
+        name: "Mind Resistance"
+        description: "Protection against fear and domination attempts."
+        base_stat: "wisdom"
+
+# Racial affinities with fixed base points
+racial_affinities:
+  Noldor:
+    - skill: "crafting"
+      base_points: 3
+    - skill: "ancient_history"
+      base_points: 3
+  Longbeards:
+    - skill: "crafting"
+      base_points: 3
+    - skill: "ancient_history"
+      base_points: 2
+  Rohirrim:
+    - skill: "riding"
+      base_points: 3
+  Northmen:
+    - skill: "survival"
+      base_points: 2
+  Brandybucks:
+    - skill: "perception"
+      base_points: 2
+    - skill: "swimming"
+      base_points: 2
+  Gondorians:
+    - skill: "ancient_history"
+      base_points: 2
+    - skill: "leadership"
+      base_points: 2
+  Harfoots:
+    - skill: "perception"
+      base_points: 2
+    - skill: "riddles"
+      base_points: 1
+  Silvan:
+    - skill: "climbing"
+      base_points: 2
+    - skill: "perception"
+      base_points: 2
+    - skill: "tracking"
+      base_points: 2
+  Firebeards:
+    - skill: "weapon_handling"
+      base_points: 3
+  Sindar:
+    - skill: "herbalism"
+      base_points: 2
+    - skill: "perception"
+      base_points: 2
+  Stoors:
+    - skill: "riddles"
+      base_points: 2
+    - skill: "swimming"
+      base_points: 2
+  Dúnedain:
+    - skill: "tracking"
+      base_points: 3
+    - skill: "survival"
+      base_points: 2
+    - skill: "ancient_history"
+      base_points: 2

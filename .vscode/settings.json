@@ -1,0 +1,10 @@
+{
+    "python-envs.pythonProjects": [],
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+            "source.unusedImports": "explicit"
+        }
+    },
+    "postman.settings.dotenv-detection-notification-visibility": false
+}

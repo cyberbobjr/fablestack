@@ -1,0 +1,304 @@
+{
+    "races": {
+        "elves": "Elfes",
+        "humans": "Humains",
+        "dwarves": "Nains",
+        "hobbits": "Hobbits",
+        "goblin": "Gobelin",
+        "orc": "Orque",
+        "skeleton": "Squelette",
+        "spectre": "Spectre",
+        "wolf": "Loup"
+    },
+    "traits": {
+        "tradition and pride": "Tradition et fierté",
+        "equestrian culture": "Culture équestre",
+        "climate endurance": "Endurance climatique",
+        "longevity ×3, +1 fate point": "Longévité ×3, +1 Point de Destin",
+        "master craftsmen": "Maîtres artisans",
+        "harmony with nature": "Harmonie avec la nature",
+        "forest experts": "Experts de la forêt",
+        "ancient traditions": "Traditions anciennes",
+        "born warriors": "Guerriers-nés",
+        "discreet and cautious": "Discret et prudent",
+        "sturdy and resistant": "Robuste et résistant",
+        "adventurous": "Aventureux"
+    },
+    "cultures": {
+        "noldor": "Noldor",
+        "gondorians": "Gondoriens",
+        "longbeards": "Longues-barbes",
+        "harfoots": "Pieds-velus",
+        "rivendell": "Fondcombe",
+        "lothlorien": "Lothlórien",
+        "erebor": "Erebor",
+        "iron_hills": "Monts du Fer",
+        "shire": "Comté",
+        "bree": "Bree",
+        "rohan": "Rohan",
+        "minas_tirith": "Minas Tirith",
+        "sindar": "Sindar",
+        "silvan": "Sylvain",
+        "firebeards": "Barbes-de-feu",
+        "stoors": "Forts",
+        "brandybucks": "Brandeboucs",
+        "northmen": "Hommes du Nord",
+        "dunedain": "Dúnedain"
+    },
+    "skills": {
+        "comedy": "Comédie",
+        "dance": "Danse",
+        "imitation": "Imitation",
+        "music_singing": "Musique - Chant",
+        "music_instrument": "Musique - Instrument",
+        "storytelling": "Conteur",
+        "alchemy": "Alchimie",
+        "ancient_history": "Histoire Ancienne",
+        "runes": "Runes",
+        "shadow_lore": "Savoir des Ombres",
+        "acrobatics": "Acrobaties",
+        "climbing": "Escalade",
+        "riding": "Equitation",
+        "swimming": "Natation",
+        "brawl": "Bagarre",
+        "weapon_handling": "Maniement des armes",
+        "combat_style": "Style de combat",
+        "crafting": "Artisanat",
+        "general_knowledge": "Connaissances générales",
+        "herbalism": "Herboristerie",
+        "language": "Langues",
+        "leadership": "Commandement",
+        "perception": "Perception",
+        "riddles": "Enigmes",
+        "stealth": "Discrétion",
+        "survival": "Survie",
+        "tracking": "Pistage",
+        "diplomacy": "Diplomatie",
+        "body_resistance": "Résistance physique",
+        "mind_resistance": "Résistance mentale"
+    },
+    "skill_descriptions": {
+        "comedy": "Capacité à jouer un rôle et à imiter les actions d'autrui. Ne modifie pas l'apparence physique.",
+        "dance": "Art de maîtriser les mouvements rythmiques et de reproduire ou créer des danses.",
+        "imitation": "Talent pour reproduire de manière convaincante des voix et des sons.",
+        "music_singing": "Maîtrise de la voix pour le chant et l'interprétation musicale.",
+        "music_instrument": "Capacité à jouer d'un instrument de musique spécifique.",
+        "storytelling": "Art de raconter des histoires de manière captivante et mémorable.",
+        "alchemy": "Art de créer des potions et des substances à partir d'ingrédients naturels.",
+        "ancient_history": "Connaissance des âges passés, des légendes et des civilisations perdues.",
+        "runes": "Lecture et création d'inscriptions dans les alphabets anciens (Cirth, Tengwar).",
+        "shadow_lore": "Connaissance de l'Ennemi, de ses serviteurs et de leurs arts obscurs.",
+        "acrobatics": "Capacité à effectuer des mouvements complexes et acrobatiques, incluant la gestion des chutes.",
+        "climbing": "Capacité à escalader diverses surfaces verticales.",
+        "riding": "Compétence pour monter des chevaux et autres montures.",
+        "swimming": "Capacité à nager et se déplacer dans l'eau.",
+        "brawl": "Combat à mains nues utilisant la force naturelle.",
+        "weapon_handling": "Capacité à utiliser efficacement les armes.",
+        "combat_style": "Techniques et manœuvres de combat avancées.",
+        "crafting": "Capacité à créer et réparer des objets (ferronnerie, charpenterie, etc.).",
+        "diplomacy": "Capacité à négocier, persuader et naviguer dans les situations sociales.",
+        "general_knowledge": "Connaissance de la géographie, des coutumes et de la vie quotidienne.",
+        "herbalism": "Connaissance des plantes, des herbes médicinales et de leurs usages.",
+        "language": "Maîtrise de langues supplémentaires.",
+        "leadership": "Capacité à inspirer, commander et remonter le moral.",
+        "perception": "Capacité à remarquer les détails et détecter les choses cachées.",
+        "riddles": "Art de proposer et résoudre des énigmes, une tradition respectée.",
+        "stealth": "Capacité à se déplacer silencieusement et à se cacher.",
+        "survival": "Capacité à survivre en milieu sauvage (trouver nourriture, abri).",
+        "tracking": "Capacité à suivre des pistes et identifier des signes de passage.",
+        "body_resistance": "Capacité à résister aux effets physiques, à la fatigue et aux poisons.",
+        "mind_resistance": "Protection contre la peur et les tentatives de domination."
+    },
+    "skill_categories": {
+        "artistic": "Artistique",
+        "magic_arts": "Arts Magiques",
+        "athletic": "Athlétique",
+        "combat": "Combat",
+        "general": "Général"
+    },
+    "stats": {
+        "strength": "Force",
+        "constitution": "Constitution",
+        "agility": "Agilité",
+        "intelligence": "Intelligence",
+        "wisdom": "Sagesse",
+        "charisma": "Charisme",
+        "willpower": "Volonté"
+    },
+    "spells": {
+        "spell_light": "Lumière",
+        "spell_detect_magic": "Détection de la magie",
+        "spell_read_magic": "Lecture de la magie",
+        "spell_minor_healing": "Soins mineurs",
+        "spell_freeze": "Gel",
+        "spell_strength_of_nature": "Force de la nature",
+        "spell_natures_dialects": "Langage de la nature",
+        "spell_ignite": "Embrasement",
+        "spell_wall_of_thorns": "Mur d'épines",
+        "spell_animal_mutation": "Mutation animale",
+        "spell_charm": "Charme",
+        "spell_confusion": "Confusion",
+        "spell_distractions": "Distractions",
+        "spell_fantasms": "Fantasmes",
+        "spell_tranquility": "Tranquillité",
+        "spell_sleep": "Sommeil",
+        "spell_enchanting_voice": "Voix enchanteresse",
+        "spell_armor_enhancement": "Renforcement d'armure",
+        "spell_elemental_weapon": "Arme élémentaire",
+        "spell_infravision": "Infravision",
+        "spell_languages": "Langues",
+        "spell_steel_skin": "Peau d'acier",
+        "spell_sensory_projection": "Projection sensorielle",
+        "spell_major_healing": "Soins majeurs",
+        "spell_purification": "Purification",
+        "spell_regeneration": "Régénération",
+        "spell_restoration": "Restauration",
+        "spell_magic_missile": "Projectile magique",
+        "spell_magic_shield": "Bouclier magique",
+        "spell_fireball": "Boule de feu",
+        "spell_lightning_bolt": "Éclair",
+        "spell_teleportation": "Téléportation"
+    },
+    "equipment_details": {
+        "weapon_ancient_sword": {
+            "name": "Épée Ancienne",
+            "description": "Une épée ancienne d'Arnor, efficace contre les morts-vivants."
+        },
+        "weapon_longsword": {
+            "name": "Épée longue",
+            "description": "Épée à une main équilibrée et polyvalente"
+        },
+        "weapon_shortsword": {
+            "name": "Épée courte",
+            "description": "Épée légère à une main"
+        },
+        "weapon_dagger": {
+            "name": "Dague",
+            "description": "Lame petite, discrète et rapide"
+        },
+        "weapon_greatsword": {
+            "name": "Épée à deux mains",
+            "description": ""
+        },
+        "weapon_handaxe": {
+            "name": "Hachette",
+            "description": ""
+        },
+        "weapon_battleaxe": {
+            "name": "Hache de guerre",
+            "description": ""
+        },
+        "weapon_greataxe": {
+            "name": "Hache de guerre",
+            "description": "Lourde hache à deux mains"
+        },
+        "weapon_spear": {
+            "name": "Lance",
+            "description": ""
+        },
+        "weapon_mace": {
+            "name": "Masse",
+            "description": "Lourde masse de métal"
+        },
+        "weapon_warhammer": {
+            "name": "Marteau de guerre",
+            "description": ""
+        },
+        "weapon_shortbow": {
+            "name": "Arc court",
+            "description": "Petit arc"
+        },
+        "weapon_longbow": {
+            "name": "Arc long",
+            "description": "Arc puissant pour le combat à distance"
+        },
+        "weapon_crossbow": {
+            "name": "Arbalète",
+            "description": ""
+        },
+        "weapon_staff": {
+            "name": "Bâton",
+            "description": "Bâton de combat, souvent utilisé par les mages"
+        },
+        "weapon_scimitar": {
+            "name": "Cimeterre",
+            "description": "Lame courbe"
+        },
+        "weapon_natural": {
+            "name": "Arme Naturelle",
+            "description": "Griffes, coup de masse ou morsure"
+        },
+        "armor_leather": {
+            "name": "Armure de Cuir",
+            "description": "Armure légère faite de cuir durci"
+        },
+        "armor_studded_leather": {
+            "name": "Cuir clouté",
+            "description": ""
+        },
+        "armor_chain_shirt": {
+            "name": "Chemise de mailles",
+            "description": ""
+        },
+        "armor_scale_mail": {
+            "name": "Armure d'écailles",
+            "description": ""
+        },
+        "armor_breastplate": {
+            "name": "Plastron",
+            "description": ""
+        },
+        "armor_half_plate": {
+            "name": "Demi-plaques",
+            "description": ""
+        },
+        "armor_ring_mail": {
+            "name": "Cotte de mailles",
+            "description": ""
+        },
+        "armor_chain_mail": {
+            "name": "Cotte de mailles",
+            "description": "Armure constituée d'anneaux de métal entrelacés"
+        },
+        "armor_splint": {
+            "name": "Armure de bandes",
+            "description": ""
+        },
+        "armor_plate": {
+            "name": "Armure de Plaques",
+            "description": "Armure lourde constituée de plaques métalliques"
+        },
+        "armor_shield": {
+            "name": "Bouclier",
+            "description": ""
+        },
+        "armor_hide": {
+            "name": "Armure de Peau",
+            "description": "Armure grossière faite de peaux épaisses"
+        },
+        "item_rope": {
+            "name": "Corde (10m)",
+            "description": "Corde robuste, longue de 10 mètres"
+        },
+        "item_rations": {
+            "name": "Rations (1 jour)",
+            "description": "Nourriture pour un jour"
+        },
+        "item_torch": {
+            "name": "Torche",
+            "description": "Source de lumière portable"
+        },
+        "item_herb_bag": {
+            "name": "Sac d'Herbes",
+            "description": "Assortiment d'herbes médicinales et magiques"
+        },
+        "item_first_aid_kit": {
+            "name": "Trousse de premiers soins",
+            "description": "Trousse médicale de premiers soins"
+        },
+        "item_arrows": {
+            "name": "Flèches (20)",
+            "description": "Un faisceau de 20 flèches"
+        }
+    }
+}

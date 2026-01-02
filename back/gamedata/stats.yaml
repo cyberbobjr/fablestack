@@ -1,0 +1,57 @@
+stats:
+  Strength:
+    short_name: STR
+    category: physical
+    description: Physical strength, build. Determines melee damage and carrying capacity.
+    examples:
+    - Lifting heavy objects
+    - Breaking down a door
+    - Melee weapon damage
+  Constitution:
+    short_name: CON
+    category: physical
+    description: Health, endurance, vigor. Determines Hit Points and resistance to
+      diseases.
+    examples:
+    - Resisting poison
+    - Enduring fatigue
+    - Surviving injuries
+  Agility:
+    short_name: AGI
+    category: physical
+    description: Manual dexterity, flexibility. Determines initiative and defense.
+    examples:
+    - Dodging an attack
+    - Pickpocketing
+    - Acrobatics
+  Intelligence:
+    short_name: INT
+    category: mental
+    description: Mental acuity, logic, knowledge. Determines spellcasting ability
+      and problem-solving.
+    examples:
+    - Solving a riddle
+    - Analyzing a situation
+    - Theoretical knowledge
+  Wisdom:
+    short_name: WIS
+    category: mental
+    description: Perception, intuition, common sense. Determines awareness and willpower
+      saves.
+    examples:
+    - Sensing danger
+    - Understanding motivations
+    - Common sense decisions
+  Charisma:
+    short_name: CHA
+    category: social
+    description: Force of personality, leadership, charm. Determines social influence
+      and persuasion.
+    examples:
+    - Persuading someone
+    - Commanding troops
+    - Impressing others
+value_range:
+  min: 3
+  max: 20
+bonus_formula: "(value - 10) // 2"

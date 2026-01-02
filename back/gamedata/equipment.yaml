@@ -1,0 +1,206 @@
+_metadata:
+  currency_system:
+    conversion: 1G = 10S = 100C
+    description: Three-tier currency system
+  weight_unit: kg
+  damage_format: dice + bonus format (e.g., 1d8+4)
+weapons:
+  Ancient Sword:
+    id: weapon_ancient_sword
+    type: weapon
+    category: melee
+    damage: 1d8+5
+    weight: 1.5
+    cost_gold: 50
+    cost_silver: 0
+    cost_copper: 0
+    description: An ancient sword of Arnor, effective against undead.
+  Longsword:
+    id: weapon_longsword
+    type: weapon
+    category: melee
+    damage: 1d8+4
+    weight: 1.5
+    cost_gold: 2
+    cost_silver: 0
+    cost_copper: 0
+    description: Balanced and versatile one-handed sword
+  Longbow:
+    id: weapon_longbow
+    type: weapon
+    category: ranged
+    damage: 1d8+2
+    range: 150
+    weight: 1.0
+    cost_gold: 1
+    cost_silver: 5
+    cost_copper: 0
+    description: Powerful bow for ranged combat
+  Dagger:
+    id: weapon_dagger
+    type: weapon
+    category: melee
+    damage: 1d4+2
+    weight: 0.5
+    cost_gold: 0
+    cost_silver: 5
+    cost_copper: 0
+    description: Small, discrete and quick blade
+  Staff:
+    id: weapon_staff
+    type: weapon
+    category: melee
+    damage: 1d6+3
+    weight: 2.0
+    cost_gold: 0
+    cost_silver: 2
+    cost_copper: 0
+    description: Combat staff, often used by mages
+  Scimitar:
+    id: weapon_scimitar
+    type: weapon
+    category: melee
+    damage: 1d6
+    weight: 1.5
+    cost_gold: 1
+    cost_silver: 5
+    cost_copper: 0
+    description: Curved blade
+  Greataxe:
+    id: weapon_greataxe
+    type: weapon
+    category: melee
+    damage: 1d12
+    weight: 3.0
+    cost_gold: 3
+    cost_silver: 0
+    cost_copper: 0
+    description: Heavy two-handed axe
+  Mace:
+    id: weapon_mace
+    type: weapon
+    category: melee
+    damage: 1d6
+    weight: 2.0
+    cost_gold: 5
+    cost_silver: 0
+    cost_copper: 0
+    description: Heavy metal mace
+  Shortsword:
+    id: weapon_shortsword
+    type: weapon
+    category: melee
+    damage: 1d6
+    weight: 1.0
+    cost_gold: 1
+    cost_silver: 0
+    cost_copper: 0
+    description: Light one-handed sword
+  Shortbow:
+    id: weapon_shortbow
+    type: weapon
+    category: ranged
+    damage: 1d6
+    range: 80
+    weight: 1.0
+    cost_gold: 1
+    cost_silver: 0
+    cost_copper: 0
+    description: Small bow
+  Natural Weapon:
+    id: weapon_natural
+    type: weapon
+    category: melee
+    damage: 1d4
+    weight: 0
+    cost_gold: 0
+    cost_silver: 0
+    cost_copper: 0
+    description: Claws, slam, or bite
+armor:
+  Leather Armor:
+    id: armor_leather
+    type: armor
+    protection: 3
+    weight: 5.0
+    cost_gold: 1
+    cost_silver: 0
+    cost_copper: 0
+    description: Light armor made of hardened leather
+  Chain Mail:
+    id: armor_chain_mail
+    type: armor
+    protection: 6
+    weight: 15.0
+    cost_gold: 4
+    cost_silver: 0
+    cost_copper: 0
+    description: Armor made of interlinked chain links
+  Plate Armor:
+    id: armor_plate
+    type: armor
+    protection: 10
+    weight: 25.0
+    cost_gold: 10
+    cost_silver: 0
+    cost_copper: 0
+    description: Heavy armor made of metal plates
+  Hide Armor:
+    id: armor_hide
+    type: armor
+    protection: 4
+    weight: 10.0
+    cost_gold: 2
+    cost_silver: 0
+    cost_copper: 0
+    description: Crude armor made of thick hides
+items:
+  Rope (10m):
+    id: item_rope
+    type: equipment
+    weight: 2.0
+    cost_gold: 0
+    cost_silver: 1
+    cost_copper: 0
+    description: Sturdy rope, 10 meters long
+  Rations (1 day):
+    id: item_rations
+    type: consumable
+    weight: 0.5
+    cost_gold: 0
+    cost_silver: 0
+    cost_copper: 5
+    description: Food for one day
+  Torch:
+    id: item_torch
+    type: equipment
+    weight: 0.5
+    cost_gold: 0
+    cost_silver: 0
+    cost_copper: 2
+    description: Portable light source
+  Herb Bag:
+    id: item_herb_bag
+    type: equipment
+    weight: 1.0
+    cost_gold: 0
+    cost_silver: 5
+    cost_copper: 0
+    description: Assortment of medicinal and magical herbs
+  First Aid Kit:
+    id: item_first_aid_kit
+    type: equipment
+    weight: 1.0
+    cost_gold: 0
+    cost_silver: 8
+    cost_copper: 0
+    description: First aid medical kit
+  Arrows (20):
+    id: item_arrows
+    type: consumable
+    weight: 1.0
+    quantity: 20
+    cost_gold: 0
+    cost_silver: 2
+    cost_copper: 0
+    description: A bundle of 20 arrows

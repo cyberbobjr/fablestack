@@ -1,0 +1,28 @@
+sex_bonuses:
+  male:
+    stats:
+      strength: 1
+    skills:
+      melee_weapons: 1
+  female:
+    stats:
+      constitution: 1
+    skills:
+      diplomacy: 1
+
+stats_creation:
+  start_value: 8
+  budget: 27
+  costs:
+    8: 0
+    9: 1
+    10: 2
+    11: 3
+    12: 4
+    13: 5
+    14: 7
+    15: 9
+
+skill_creation:
+  starting_points: 40
+  max_points: 40

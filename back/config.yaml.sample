@@ -1,0 +1,83 @@
+# FableStack Project Configuration
+# Centralized configuration file for application settings
+
+# LLM Model Configuration
+llm:
+  # Model to use (e.g. deepseek-chat, gpt-4, llama3.1)
+  model: "deepseek-chat"
+
+  # LLM API Endpoint
+  api_endpoint: "https://api.deepseek.com"
+
+  # API Key to access the model (will be overridden by environment variables)
+  api_key: "DEEPSEEK_API_KEY"
+  token_limit: 40000
+  keep_last_n_messages: 10
+
+# Data Configuration
+data:
+  # Data directory (can be overridden by DATA_DIR)
+  directory: "./gamedata"
+
+# Application Configuration
+app:
+  # FastAPI Server Port
+  port: 8000
+
+  # FastAPI Server Host
+  host: "0.0.0.0"
+
+  # Public URL of the application (frontend)
+  # Dev: http://localhost:5173
+  # Prod: https://my-domain.com
+  public_url: "http://localhost:5173"
+
+# Logging Configuration
+logging:
+  # Global log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  level: "INFO"
+
+  # Log format (JSON for Grafana/Loki)
+  format: "json"
+
+  # Log file (optional, if not defined: console output only)
+  file: "console.log"
+
+  # Max log file size in bytes (automatic rotation)
+  max_file_size: 10485760  # 10MB
+
+  # Number of backup files to keep
+  backup_count: 5
+
+# Image Generation Configuration
+image_generation:
+  # Enable or disable image generation at character creation
+  enabled: true
+  model: "rundiffusion:130@100"
+  # Maximum number of portrait regenerations allowed per user per day
+  daily_limit: 5
+
+# SMTP Configuration (for password recovery)
+smtp:
+  enabled: true
+  host: "smtp.example.com"
+  port: 587
+  user: "SMTP_USER"        # Should be overridden by environment variable
+  password: "SMTP_PASSWORD"  # Should be overridden by environment variable
+  from_email: "no-reply@example.com"
+
+# Authentication Configuration
+auth:
+  secret_key: "7f2e0c8a9d3b4f6a1c7e9b8d0f2a4c6e8b1d3f507192a4c6e8b1d3f507192a4c"
+  algorithm: "HS256"
+  expire_minutes: 30
+
+# Storage Configuration
+storage:
+  user_backend: "json" # or "sqlite"
+  sqlite_path: "gamedata/users.db"
+
+# World Configuration (Lore and Style)
+world:
+  lore: "A dark and realistic fantasy world. The action takes place in Middle Earth, during the Third Age, in the year 2955 (under the growing shadow of Mordor)."
+  art_style: "fantasy illustration style, digital painting, detailed, sharp focus, art by Boris Vallejo and Julie Bell"

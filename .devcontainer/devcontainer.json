@@ -1,0 +1,21 @@
+{
+  "name": "InvokeAI",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "forwardPorts": [
+    5173,
+    9090
+  ],
+  "runArgs": [
+    "--gpus",
+    "all"
+  ],
+  "mounts": [
+    "source=${localWorkspaceFolder}/.bash_history,target=/root/.bash_history,type=bind",
+    "source=${localWorkspaceFolder}/models,target=/root/.ollama/models,type=bind"
+  ],
+  "remoteUser": "root",
+  "postCreateCommand": "",
+  "postStartCommand": ""
+}

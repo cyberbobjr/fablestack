@@ -1,0 +1,173 @@
+magic_system:
+  spheres:
+  - name: Universal
+    description: Basic spells accessible to all casters
+    spells:
+    - id: spell_light
+      name: Light
+      power_cost: 2
+      description: Creates a source of magical light illuminating a 3-meter radius
+        for 1 hour
+    - id: spell_detect_magic
+      name: Detect Magic
+      power_cost: 3
+      description: Allows detecting the presence of magic within a 15-meter radius
+        for 10 minutes
+    - id: spell_read_magic
+      name: Read Magic
+      power_cost: 4
+      description: Allows understanding and reading magical inscriptions and runes
+  - name: Animist
+    description: Magic of nature and elements
+    spells:
+    - id: spell_minor_healing
+      name: Minor Healing
+      power_cost: 3
+      description: Heals minor wounds of a character, restoring up to 25% of their
+        Hit Points
+    - id: spell_freeze
+      name: Freeze
+      power_cost: 6
+      description: Lowers the temperature of a material, potentially breaking metal
+        objects or slowing creatures
+    - id: spell_strength_of_nature
+      name: Strength of Nature
+      power_cost: 3
+      description: Grants a +5 bonus to melee attacks for 2 rounds per caster's rank
+    - id: spell_natures_dialects
+      name: Nature's Dialects
+      power_cost: 4
+      description: Allows understanding and speaking animal languages for 5 rounds
+        per rank
+    - id: spell_ignite
+      name: Ignite
+      power_cost: 6
+      description: Increases the temperature of a material, potentially igniting objects
+        or harming creatures
+    - id: spell_wall_of_thorns
+      name: Wall of Thorns
+      power_cost: 6
+      description: Creates a wall of brambles and thorns causing damage to creatures
+        that pass through it
+    - id: spell_animal_mutation
+      name: Animal Mutation
+      power_cost: 8
+      description: Transforms the caster into an animal for 10 rounds per rank, with
+        the animal's physical abilities
+  - name: Bard
+    description: Magic of influence and illusion
+    spells:
+    - id: spell_charm
+      name: Charm
+      power_cost: 4
+      description: The target believes the caster is their friend as long as they
+        concentrate, up to 5 rounds per rank
+    - id: spell_confusion
+      name: Confusion
+      power_cost: 4
+      description: The target is confused and cannot take any offensive action, only
+        defend with 50% of their abilities
+    - id: spell_distractions
+      name: Distractions
+      power_cost: 5
+      description: The target receives a -20 penalty to all actions for 2 rounds per
+        rank
+    - id: spell_fantasms
+      name: Fantasms
+      power_cost: 5
+      description: Creates an illusory image of an object or person that moves according
+        to the caster's will
+    - id: spell_tranquility
+      name: Tranquility
+      power_cost: 6
+      description: The target takes no aggressive or offensive action, and only fights
+        if attacked
+    - id: spell_sleep
+      name: Sleep
+      power_cost: 4
+      description: The target falls into a light magical sleep for 2 rounds per rank
+    - id: spell_enchanting_voice
+      name: Enchanting Voice
+      power_cost: 3
+      description: The target believes all of the caster's reasoning as long as they
+        concentrate
+  - name: Adventurer
+    description: Practical and utilitarian magic
+    spells:
+    - id: spell_armor_enhancement
+      name: Armor Enhancement
+      power_cost: 5
+      description: Enchants armor to give it a +10 defensive bonus for 5 rounds per
+        rank
+    - id: spell_elemental_weapon
+      name: Elemental Weapon
+      power_cost: 3
+      description: Enchants a melee weapon to deliver an additional elemental critical
+        for 2 rounds per rank
+    - id: spell_infravision
+      name: Infravision
+      power_cost: 5
+      description: Allows seeing in total darkness up to 15 meters for 5 rounds per
+        rank
+    - id: spell_languages
+      name: Languages
+      power_cost: 4
+      description: Allows speaking a creature's native language as if having 3 ranks
+        in that language
+    - id: spell_steel_skin
+      name: Steel Skin
+      power_cost: 4
+      description: Makes skin as resistant as steel, giving +10 defense for 2 rounds
+        per rank
+    - id: spell_sensory_projection
+      name: Sensory Projection
+      power_cost: 3
+      description: Allows moving a sense (sight, hearing) remotely for 2 rounds per
+        rank
+  - name: Healer
+    description: Healing and restorative magic
+    spells:
+    - id: spell_major_healing
+      name: Major Healing
+      power_cost: 6
+      description: Heals significant wounds of a character, restoring up to 50% of
+        their Hit Points
+    - id: spell_purification
+      name: Purification
+      power_cost: 4
+      description: Neutralizes poisons and purifies natural diseases
+    - id: spell_regeneration
+      name: Regeneration
+      power_cost: 8
+      description: Allows the target to recover 1 Hit Point per round for 10 rounds
+    - id: spell_restoration
+      name: Restoration
+      power_cost: 5
+      description: Restores characteristics diminished by magic or disease
+  - name: Mage
+    description: Pure and elemental magic
+    spells:
+    - id: spell_magic_missile
+      name: Magic Missile
+      power_cost: 2
+      description: Projects a missile of pure energy that automatically hits for 1d6
+        damage points
+    - id: spell_magic_shield
+      name: Magic Shield
+      power_cost: 4
+      description: Creates a shield of magical energy giving +15 defense against attacks
+        for 10 rounds
+    - id: spell_fireball
+      name: Fireball
+      power_cost: 8
+      description: Projects an explosive fireball causing fire damage in an area
+    - id: spell_lightning_bolt
+      name: Lightning Bolt
+      power_cost: 6
+      description: Projects an electric lightning bolt in a straight line causing electrical
+        damage
+    - id: spell_teleportation
+      name: Teleportation
+      power_cost: 10
+      description: Instantly transports the caster to a visible location within a 30-meter
+        radius

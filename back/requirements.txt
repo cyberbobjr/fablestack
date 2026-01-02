@@ -1,0 +1,30 @@
+# Framework web et ASGI
+fastapi>=0.111
+uvicorn[standard]>=0.30
+
+# LLM & AI
+openai>=1.30
+
+# Migration vers PydanticAI
+pydantic-ai
+logfire[fastapi]
+opentelemetry-instrumentation-fastapi
+tiktoken
+
+# Validation de données & I/O
+pydantic>=2.7
+fastapi-injector
+aiofiles>=23.2
+python-dotenv>=1.0
+httpx>=0.27.0
+google-auth>=2.35.0
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.9
+
+# Tests et qualité de code
+pytest>=8.2
+pytest-asyncio>=0.23
+coverage>=7.5
+ruff>=0.4
+black>=24.4
