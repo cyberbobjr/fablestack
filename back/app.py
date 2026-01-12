@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
+from pathlib import Path
 from back.di import configure_injector
 from back.routers import (auth, characters, creation, gamesession, scenarios,
                           translation, user, users)
@@ -71,21 +72,21 @@ from fastapi.staticfiles import StaticFiles
 # Mount static files (Backend)
 # Must be done BEFORE the SPA catch-all
 # project_root is defined later for frontend, but we need it here for backend static
-project_root_back = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-static_dir = os.path.join(project_root_back, "back", "static")
-if os.path.exists(static_dir):
-    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+project_root_back = Path(__file__).resolve().parent
+static_dir = project_root_back / "static"
+if static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 # Serve Static Files (Frontend) if available
 # This assumes the frontend is built to ../front/dist relative to back/app.py
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-frontend_dist = os.path.join(project_root, "front", "dist")
+project_root = project_root_back.parent
+frontend_dist = project_root / "front" / "dist"
 
 if os.path.exists(frontend_dist):
     # Mount assets
-    assets_path = os.path.join(frontend_dist, "assets")
-    if os.path.exists(assets_path):
-        app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
+    assets_path = frontend_dist / "assets"
+    if assets_path.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_path)), name="assets")
 
     # Catch-all for SPA
     @app.get("/{full_path:path}", include_in_schema=False)
@@ -93,9 +94,9 @@ if os.path.exists(frontend_dist):
         # API routes are already handled above by precedence
         
         # Check if a file exists in the dist folder (e.g. favicon.ico, manifest.json)
-        file_path = os.path.join(frontend_dist, full_path)
-        if os.path.exists(file_path) and os.path.isfile(file_path):
-             return FileResponse(file_path)
+        file_path = frontend_dist / full_path
+        if file_path.exists() and file_path.is_file():
+             return FileResponse(str(file_path))
              
         # Otherwise serve index.html
-        return FileResponse(os.path.join(frontend_dist, "index.html"))
+        return FileResponse(str(frontend_dist / "index.html"))
