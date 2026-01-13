@@ -42,6 +42,12 @@ export default {
         in_progress: "En cours",
         completed: "Terminé"
     },
+    character_status: {
+        draft: "Brouillon",
+        active: "Prêt",
+        in_game: "En aventure",
+        archived: "Archivé"
+    },
     ui: {
         loading_history: "Chargement de l'historique...",
         no_history: "Aucun historique de conversation.",

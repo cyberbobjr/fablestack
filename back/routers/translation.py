@@ -9,6 +9,7 @@ from typing import Any, Dict
 from fastapi import APIRouter, Body, HTTPException
 from pydantic import BaseModel
 
+from back.utils.logger import log_error
 router = APIRouter(tags=["translation"])
 
 # Path to translations directory
@@ -54,6 +55,7 @@ def get_translations(language: str) -> TranslationResponse:
             data = json.load(f)
         return TranslationResponse(translations=data)
     except Exception as e:
+        log_error(f"Error reading translation file: {str(e)}", language=language)
         raise HTTPException(status_code=500, detail=f"Error reading translation file: {str(e)}")
 
 @router.put(
@@ -98,4 +100,5 @@ def update_translation(language: str, key: str = Body(...), value: str = Body(..
             
         return TranslationResponse(translations=data)
     except Exception as e:
+        log_error(f"Error updating translation file: {str(e)}", language=language)
         raise HTTPException(status_code=500, detail=f"Error updating translation file: {str(e)}")

@@ -14,9 +14,8 @@ from pydantic_ai.messages import ModelMessagesTypeAdapter
 
 from back.agents.translation_agent import TranslationAgent
 from back.auth_dependencies import get_current_active_user
-from back.models.api.game import (ActiveSessionsResponse,
-                                  DeleteMessageResponse, PlayScenarioRequest,
-                                  PlayScenarioResponse, RestoreRequest,
+from back.models.api.game import (ActiveSessionsResponse,PlayScenarioRequest,
+                                    RestoreRequest,
                                   ScenarioHistoryResponse, SessionInfo,
                                   StartScenarioRequest, StartScenarioResponse)
 from back.models.domain.character import Character
@@ -32,11 +31,10 @@ from back.services.game_session_service import (HISTORY_NARRATIVE,
 from back.services.races_data_service import RacesDataService
 from back.services.scenario_service import ScenarioService
 from back.services.settings_service import SettingsService
-from back.utils.exceptions import (CharacterInvalidStateError,
-                                   CharacterNotFoundError,
+from back.utils.exceptions import (CharacterNotFoundError,
                                    ServiceNotInitializedError,
                                    SessionNotFoundError)
-from back.utils.logger import log_debug
+from back.utils.logger import log_debug, log_error
 
 router = APIRouter(tags=["gamesession"])
 
@@ -108,7 +106,7 @@ async def list_active_sessions(
         return ActiveSessionsResponse(sessions=enriched_sessions)
 
     except Exception as e:
-        log_debug("Error listing active sessions", error=str(e))
+        log_error("Error listing active sessions", error=str(e))
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -210,7 +208,7 @@ async def start_scenario(
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        log_debug("Error starting scenario", error=str(e), traceback=traceback.format_exc())
+        log_error("Error starting scenario", error=str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post(
@@ -287,7 +285,7 @@ async def play_stream(
     except HTTPException:
         raise
     except Exception as e:
-        log_debug("Error preparing stream", error=str(e), traceback=traceback.format_exc())
+        log_error("Error preparing stream", error=str(e))
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 
 
@@ -374,7 +372,7 @@ async def get_scenario_history(
     except SessionNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        log_debug("Error retrieving session history", error=str(e), session_id=str(session_id))
+        log_error("Error retrieving session history", error=str(e), session_id=str(session_id))
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 
 
@@ -434,20 +432,11 @@ async def restore_history(
         new_llm_history = []
         for msg in llm_history:
             ts = _extract_timestamp(msg)
-            # If no timestamp found, we keep it safe (or decide strict policy? assuming older msgs have early timestamps)
-            # But usually all messages should have timestamps.
-            # Logic: if ts exists and ts >= target, we remove it.
-            # So we keep if ts < target or ts is None
             if ts is None or ts < target_timestamp:
                 new_llm_history.append(msg)
         
-        # 3. Save both
-        # Save Timeline
-        # Save Timeline
         await session.save_timeline_events(new_timeline, overwrite=True)
         
-        # Save LLM History
-        # Validate with adapter before saving
         pydantic_llm = ModelMessagesTypeAdapter.validate_python(new_llm_history)
         await session.save_history_llm(HISTORY_NARRATIVE, pydantic_llm)
         
@@ -458,7 +447,7 @@ async def restore_history(
     except SessionNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        log_debug("Error restoring history", error=str(e), traceback=traceback.format_exc())
+        log_error("Error restoring history", error=str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -497,5 +486,5 @@ async def delete_session(
     except SessionNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        log_debug("Error deleting session", error=str(e), session_id=str(session_id))
+        log_error("Error deleting session", error=str(e), session_id=str(session_id))
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")

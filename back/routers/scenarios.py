@@ -12,7 +12,7 @@ from back.models.api.game import (ScenarioGenerationRequest, ScenarioList,
                                   ScenarioStatus)
 from back.models.domain.user import User
 from back.services.scenario_service import ScenarioService
-from back.utils.logger import log_debug
+from back.utils.logger import log_debug, log_error
 
 router = APIRouter(tags=["scenario"])
 
@@ -93,8 +93,7 @@ async def create_scenario(
     except FileExistsError as e:
         raise HTTPException(status_code=409, detail=str(e))
     except Exception as e:
-        import traceback
-        log_debug(f"Error creating scenario: {e}\n{traceback.format_exc()}")
+        log_error(f"Error creating scenario: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete(
@@ -116,8 +115,7 @@ async def delete_scenario(
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        import traceback
-        log_debug(f"Error deleting scenario: {e}\n{traceback.format_exc()}")
+        log_error(f"Error deleting scenario: {e}", filename=scenario_file)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put(
@@ -140,8 +138,7 @@ async def update_scenario(
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        import traceback
-        log_debug(f"Error updating scenario: {e}\n{traceback.format_exc()}")
+        log_error(f"Error updating scenario: {e}", filename=scenario_file)
         raise HTTPException(status_code=500, detail=str(e))
 
 

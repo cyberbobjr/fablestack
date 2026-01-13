@@ -15,7 +15,7 @@ from back.models.domain.user import User
 from back.services.character_data_service import CharacterDataService
 from back.services.localization_service import LocalizationService
 from back.utils.exceptions import InternalServerError
-from back.utils.logger import log_debug
+from back.utils.logger import log_debug, log_error
 
 
 class CharacterResponse(BaseModel):
@@ -50,23 +50,16 @@ async def list_characters(
     """
     Retrieve the list of all available characters in the system.
     """
-
-    log_debug("Appel endpoint characters/list_characters")
     
     try:
         characters = await data_service.get_all_characters()
-        
-        log_debug("Liste des personnages récupérée",
-                  action="list_characters_success",
-                  count=len(characters))
-
         return characters
         
     except Exception as e:
-        log_debug("Erreur lors de la récupération des personnages", 
+        log_error("Error during fetch characters list", 
                  action="list_characters_error", 
                  error=str(e))
-        raise InternalServerError(f"Erreur lors de la récupération des personnages: {str(e)}")
+        raise InternalServerError(f"Error during fetch characters list: {str(e)}")
 
 
 @router.get(
@@ -101,6 +94,7 @@ async def get_character_detail(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        log_error("Character retrieval failed", error=str(e), character_id=character_id)
         raise HTTPException(status_code=500, detail=f"Character retrieval failed: {str(e)}")
 
 
@@ -133,6 +127,7 @@ async def delete_character(
     except HTTPException as e:
         raise e
     except Exception as e:
+        log_error("Character deletion failed", error=str(e), character_id=character_id)
         raise HTTPException(status_code=500, detail=f"Character deletion failed: {str(e)}")
 
 
@@ -159,12 +154,6 @@ async def regenerate_portrait(
         from back.services.image_generation_service import \
             ImageGenerationService
 
-        # 0. Check Rate Limit
-        # NOTE: Potential race condition exists if multiple concurrent requests check
-        # the same daily_portrait_count value. This is acceptable for this use case
-        # as the limit is soft and the worst case is slightly exceeding the daily limit.
-        # For stricter enforcement, consider implementing database-level atomic operations
-        # or distributed locks.
         img_config = get_image_generation_config()
         daily_limit = img_config.get("daily_limit", 5)  # Default to 5 if not in config
         
@@ -224,4 +213,5 @@ async def regenerate_portrait(
     except HTTPException as e:
         raise e
     except Exception as e:
+        log_error("Portrait regeneration failed", error=str(e), character_id=character_id)
         raise HTTPException(status_code=500, detail=f"Portrait regeneration failed: {str(e)}")

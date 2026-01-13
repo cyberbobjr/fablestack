@@ -13,6 +13,7 @@ from back.models.api.auth import (ForgotPasswordRequest, MagicLoginRequest,
 from back.models.domain.user import User
 from back.services.auth_service import ACCESS_TOKEN_EXPIRE_MINUTES, AuthService
 from back.services.email_service import EmailService
+from back.utils.logger import log_error
 from back.utils.password_validator import validate_password_strength
 
 router = APIRouter(tags=["auth"])
@@ -217,3 +218,6 @@ async def register_user(
         return created_user
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        log_error(f"User registration failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")

@@ -7,7 +7,7 @@ from back.models.api.auth import ChangePasswordRequest, UserResponse
 from back.models.domain.preferences import UserPreferences
 from back.models.domain.user import User
 from back.services.auth_service import AuthService
-from back.utils.logger import log_debug
+from back.utils.logger import log_debug, log_error
 from back.utils.password_validator import validate_password_strength
 
 router = APIRouter(tags=["user"])
@@ -142,4 +142,5 @@ async def update_preferences(
         await user_manager.update(updated_user)
         return preferences
     except Exception as e:
+        log_error(f"Failed to update preferences: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to update preferences: {str(e)}")

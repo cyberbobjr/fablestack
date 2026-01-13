@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ChevronLeft, Edit, Eye, PlusCircle, Trash2, User } from 'lucide-vue-next'
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import ConfirmationModal from '../components/ConfirmationModal.vue'
 import api, { type Character } from '../services/api'
 
 const router = useRouter()
+const { t } = useI18n()
 const loading = ref(true)
 const characters = ref<Character[]>([])
 const showDeleteModal = ref(false)
@@ -99,9 +101,19 @@ const confirmDelete = async () => {
                                 char.name }}</h3>
                         <p class="text-sm text-fantasy-muted capitalize">{{ char.race }} - {{ char.culture }}</p>
                     </div>
-                    <span class="px-2 py-1 rounded bg-fantasy-dark text-xs text-fantasy-gold border border-gray-700">
-                        Niv. {{ char.level }}
-                    </span>
+                    <div class="flex flex-col items-end gap-2">
+                        <span class="px-2 py-1 rounded bg-fantasy-dark text-xs text-fantasy-gold border border-gray-700">
+                            Niv. {{ char.level }}
+                        </span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border"
+                            :class="{
+                                'bg-gray-700/50 text-gray-400 border-gray-600': char.status === 'draft',
+                                'bg-green-900/40 text-green-400 border-green-800/50': char.status === 'active',
+                                'bg-blue-900/40 text-blue-400 border-blue-800/50': char.status === 'in_game'
+                            }">
+                            {{ t(`character_status.${char.status}`) }}
+                        </span>
+                    </div>
                 </div>
 
                 <div class="space-y-2 mb-6">

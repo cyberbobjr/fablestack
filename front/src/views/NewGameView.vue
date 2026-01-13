@@ -162,14 +162,24 @@ const startGame = async () => {
         <div class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
           <div v-for="char in characters" :key="char.id"
             class="p-4 rounded border transition-all relative overflow-hidden" :class="[
-              isCharacterActive(char.id) ? 'opacity-60 cursor-not-allowed bg-fantasy-dark border-fantasy-muted/50 grayscale' :
+              isCharacterActive(char.id) || char.status === 'draft' ? 'opacity-60 cursor-not-allowed bg-fantasy-dark border-fantasy-muted/50 grayscale' :
                 selectedCharacter === char.id ? 'bg-fantasy-secondary border-fantasy-accent ring-1 ring-fantasy-accent cursor-pointer' :
                   'bg-fantasy-secondary border-gray-700 hover:border-gray-500 cursor-pointer'
-            ]" @click="!isCharacterActive(char.id) && (selectedCharacter = char.id)">
+            ]" @click="!isCharacterActive(char.id) && char.status !== 'draft' && (selectedCharacter = char.id)">
 
             <div v-if="isCharacterActive(char.id)"
               class="absolute top-2 right-2 bg-red-900/80 text-red-200 text-xs px-2 py-1 rounded">
-              En cours
+              {{ t('character_status.in_game') }}
+            </div>
+            
+            <div v-else-if="char.status === 'draft'"
+              class="absolute top-2 right-2 bg-gray-700/80 text-gray-200 text-xs px-2 py-1 rounded border border-gray-500">
+              {{ t('character_status.draft') }}
+            </div>
+
+            <div v-else-if="char.status === 'active'"
+              class="absolute top-2 right-2 bg-green-900/40 text-green-200 text-xs px-2 py-1 rounded border border-green-800/50">
+              {{ t('character_status.active') }}
             </div>
 
             <div class="flex justify-between items-center">

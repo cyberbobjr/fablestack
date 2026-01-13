@@ -29,7 +29,7 @@ from back.services.image_generation_service import ImageGenerationService
 from back.services.races_data_service import RacesDataService
 from back.services.settings_service import SettingsService
 from back.services.skill_allocation_service import SkillAllocationService
-from back.utils.logger import log_warning
+from back.utils.logger import log_error, log_warning
 
 router = APIRouter(tags=["creation"])
 
@@ -372,10 +372,7 @@ async def create_random_character(
         )
 
     except Exception as e:
-        # Log the full error for debugging
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"Random character creation failed: {str(e)}", exc_info=True)
+        log_error(f"Random character creation failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Random character creation failed: {str(e)}")
 
 @router.post(
@@ -436,9 +433,7 @@ async def generate_details(
         return result.output
 
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"Details generation failed: {str(e)}", exc_info=True)
+        log_error(f"Details generation failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Details generation failed: {str(e)}")
 
 
@@ -522,10 +517,6 @@ def get_equipment(
         if 'category' not in item and 'type' in item:
             item['category'] = item['type']
             
-        # Convert range to integer if it's a string (EquipmentItem expects Optional[int])
-        # But wait, previous code converted int to string? 
-        # Model says: range: Optional[int] = None
-        # So we should ensure it is int or None.
         if 'range' in item:
             if item['range'] is None or item['range'] == '':
                 item['range'] = None

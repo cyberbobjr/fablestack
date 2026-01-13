@@ -8,6 +8,7 @@ from back.auth_dependencies import get_current_admin_user
 from back.interfaces.user_manager_protocol import UserManagerProtocol
 from back.models.api.auth import UserResponse, UserUpdate
 from back.models.domain.user import User
+from back.utils.logger import log_error
 
 router = APIRouter(tags=["users"])
 

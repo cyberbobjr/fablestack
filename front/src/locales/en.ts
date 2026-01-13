@@ -43,6 +43,12 @@ export default {
         in_progress: "In Progress",
         completed: "Completed"
     },
+    character_status: {
+        draft: "Draft",
+        active: "Ready",
+        in_game: "In Adventure",
+        archived: "Archived"
+    },
     ui: {
         loading_history: "Loading history...",
         no_history: "No conversation history.",
