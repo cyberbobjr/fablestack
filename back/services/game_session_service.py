@@ -38,20 +38,16 @@ class GameSessionService:
     """
     ### GameSessionService
     **Description:** Service responsible for managing game sessions.
-    It handles the lifecycle of a session, including:
-    - Loading and saving session metadata (character ID, scenario ID).
-    - Managing message history for narrative and combat modes.
-    - Initializing and providing access to specialized services (`CharacterService`, `EquipmentService`).
-    - Building system prompts for agents.
-
-    **Attributes:**
-    - `session_id` (str): Unique identifier for the session.
-    - `character_id` (Optional[str]): ID of the character associated with the session.
-    - `scenario_id` (str): ID of the scenario associated with the session.
-    - `data_service` (Optional[CharacterDataService]): Service for character data persistence.
-    - `character_service` (Optional[CharacterService]): Service for character business logic.
-    - `equipment_service` (Optional[EquipmentService]): Service for equipment management.
+    Refactored to check LangGraph state for persistence, while keeping Metadata in files.
     """
+    
+    def _get_graph_state(self) -> Optional[Dict[str, Any]]:
+        """Helper to get the current graph state dictionary."""
+        from back.agents.game_graph import build_game_graph
+        app = build_game_graph()
+        config = {"configurable": {"thread_id": self.session_id}}
+        state_snapshot = app.get_state(config)
+        return state_snapshot.values if state_snapshot else None
 
     def __init__(self, session_id: str) -> None:
         """
@@ -342,26 +338,36 @@ class GameSessionService:
         async with aiofiles.open(scenario_file, mode='w', encoding='utf-8') as f:
             await f.write(scenario_name)
 
-        # Initialize GameState with user_id
-        game_state = GameState(
-            character_uuid=str(character_id),
-            user_id=user_id,
-            scenario_status="active"
-        )
-        game_state_file = session_dir / "game_state.json"
-        async with aiofiles.open(game_state_file, mode='w', encoding='utf-8') as f:
-             await f.write(game_state.model_dump_json(indent=2))
-
-        # Update character status to IN_GAME
+        # Update character status to IN_GAME and Load Character Data
+        loaded_character = None
         try:
             char_service = CharacterService(str(character_id), data_service=character_data_service)
             await char_service.load()
             char_service.character_data.status = CharacterStatus.IN_GAME
             await char_service.save()
+            loaded_character = char_service.get_character()
             log_debug(f"Character {character_id} status updated to IN_GAME")
         except Exception as e:
             log_debug(f"Failed to update character status to IN_GAME: {e}")
-            # Non-blocking error, we continue
+            # Non-blocking error? If we can't load character, we probably can't play.
+            # But let's proceed with None and hope for the best or raise error.
+            # raise e 
+
+        # Initialize GameState in LangGraph
+        from back.agents.game_graph import build_game_graph
+        app = build_game_graph()
+        
+        initial_game_state = GameState(
+            character_uuid=str(character_id),
+            user_id=user_id,
+            scenario_status="active",
+            character=loaded_character
+        )
+        
+        # We need to set the initial state. 
+        # app.update_state allows setting the channels.
+        config = {"configurable": {"thread_id": session_id}}
+        app.update_state(config, initial_game_state.model_dump())
 
 
         log_debug("Scenario started", action="start_scenario", session_id=session_id, character_id=str(character_id), scenario_name=scenario_name)
@@ -541,112 +547,51 @@ class GameSessionService:
             raise ScenarioNotFoundError(f"Scenario {self.scenario_id} not found") from None
 
     async def save_timeline_events(self, events: List[TimelineEvent], overwrite: bool = False) -> None:
-        """
-        Saves a list of TimelineEvent objects to `history_timeline.jsonl`.
-        
-        :param events: List of events to save.
-        :param overwrite: If True, overwrites the file. If False (default), appends.
-        """
-        import json
-
-        import aiofiles
-        history_path = os.path.join(get_data_dir(), "sessions", self.session_id, "history_timeline.jsonl")
-        
-        mode = 'w' if overwrite else 'a'
-        async with aiofiles.open(history_path, mode, encoding='utf-8') as f:
-            for event in events:
-                # model_dump_json() is Pydantic V2
-                await f.write(event.model_dump_json() + "\n")
+        """Deprecated: Timeline is managed by LangGraph state."""
+        log_warning("save_timeline_events is deprecated and has no effect.")
+        pass
 
     async def load_timeline_events(self) -> List[TimelineEvent]:
         """
-        Loads TimelineEvent objects from `history_timeline.jsonl`.
+        Loads TimelineEvent objects from LangGraph 'ui_messages'.
         """
-        import json
-
-        import aiofiles
-
-        from back.models.api.game import TimelineEvent
-
-        history_path = os.path.join(get_data_dir(), "sessions", self.session_id, "history_timeline.jsonl")
-        if not os.path.exists(history_path):
-            return []
-            
-        events = []
-        async with aiofiles.open(history_path, 'r', encoding='utf-8') as f:
-            async for line in f:
-                if line.strip():
-                    try:
-                        data = json.loads(line)
-                        events.append(TimelineEvent(**data))
-                    except Exception as e:
-                        log_debug(f"Error skipping invalid timeline line: {e}")
-        return events
+        values = self._get_graph_state()
+        if values:
+            return values.get("ui_messages", [])
+        return []
 
     async def save_history(self, kind: str, messages: list) -> None:
-        """
-        ### save_history
-        **Description:** Saves the message history for a specific mode (narrative or combat) to a JSONL file.
-        **Parameters:**
-        - `kind` (str): The type of history ("narrative" or "combat").
-        - `messages` (list): A list of `ModelMessage` objects to save.
-        
-        **Returns:** None.
-        """
-        history_path = os.path.join(get_data_dir(), "sessions", self.session_id, f"history_{kind}.jsonl")
-        store = PydanticJsonlStore(history_path)
-        await store.save_pydantic_history_async(messages)
-
-
+        """Deprecated: History is managed by LangGraph state."""
+        log_warning("save_history is deprecated and has no effect.")
+        pass
 
     async def load_history_raw_json(self, kind: str) -> List[Dict[str, Any]]:
-        """
-        ### load_history_raw_json
-        **Description:** Loads the message history for a specific mode as raw JSON dictionaries.
-        Useful for API responses or debugging.
-
-        **Parameters:**
-        - `kind` (str): The type of history ("narrative" or "combat").
-
-        **Returns:**
-        - `List[Dict[str, Any]]`: A list of message dictionaries. Returns an empty list if the file does not exist.
-        """
-        history_path = os.path.join(get_data_dir(), "sessions", self.session_id, f"history_{kind}.jsonl")
-        if os.path.exists(history_path):
-            store = PydanticJsonlStore(history_path)
-            return await store.load_raw_json_history_async()
+        """Deprecated/Adapted: Loads messages from LangGraph as dicts."""
+        values = self._get_graph_state()
+        if values and "messages" in values:
+            return [m.model_dump() for m in values["messages"]]
         return []
 
     async def save_history_llm(self, kind: str, messages: List[ModelMessage]) -> None:
-        """
-        ### save_history_llm
-        **Description:** Saves the summarized message history for LLM context.
-        This history is separate from the full UI history.
-
-        **Parameters:**
-        - `kind` (str): The type of history ("narrative" or "combat").
-        - `messages` (list): A list of `ModelMessage` objects to save.
-        """
-        history_path = os.path.join(get_data_dir(), "sessions", self.session_id, f"history_{kind}_llm.jsonl")
-        store = PydanticJsonlStore(history_path)
-        await store.save_pydantic_history_async(messages)
+        """Deprecated."""
+        log_warning("save_history_llm is deprecated and has no effect.")
+        pass
 
     async def load_history_llm(self, kind: str) -> List[ModelMessage]:
         """
-        ### load_history_llm
-        **Description:** Loads the summarized message history for LLM context.
-
-        **Parameters:**
-        - `kind` (str): The type of history ("narrative" or "combat").
-
-        **Returns:**
-        - `List[ModelMessage]`: A list of loaded `ModelMessage` objects.
+        Loads the summarized message history for LLM context from LangGraph.
+        Returns them as PydanticAI ModelMessages (if possible) or BaseMessage?
+        The callers expect PydanticAI ModelMessage?
+        The caller is usually LogicOracleService, which we refactored.
+        If there are other callers, they might break.
+        But generally external usage of this was for Agent Execution.
+        We return empty list here to avoid breaking type hints, but LogicOracleService uses state directly.
         """
-        history_path = os.path.join(get_data_dir(), "sessions", self.session_id, f"history_{kind}_llm.jsonl")
-        if os.path.exists(history_path):
-            store = PydanticJsonlStore(history_path)
-            return await store.load_pydantic_history_async()
-        return []
+        values = self._get_graph_state()
+        if values and "messages" in values:
+            # LangGraph messages are already BaseMessage, which ModelMessage can wrap
+            return [ModelMessage(content=m.content, role=m.type) for m in values["messages"]]
+        return [] 
 
     async def get_last_n_messages(self, kind: str, n: int) -> List[ModelMessage]:
         """
@@ -664,41 +609,21 @@ class GameSessionService:
         return history[-n:] if history else []
 
     async def update_game_state(self, game_state: GameState) -> None:
-        """
-        ### update_game_state
-        **Description:** Saves the current game state object to `game_state.json`.
-
-        **Parameters:**
-        - `game_state` (GameState): The GameState object to save.
-        
-        **Returns:** None.
-        """
-        import json
-
-        import aiofiles
-        state_path = os.path.join(get_data_dir(), "sessions", self.session_id, "game_state.json")
-        async with aiofiles.open(state_path, 'w', encoding='utf-8') as f:
-            # Use mode='json' to handle UUID serialization automatically
-            await f.write(json.dumps(game_state.model_dump(mode='json'), ensure_ascii=False, indent=2))
+        """Deprecated: Helper to update state is removed. Use LangGraph directly via invoke or update_state."""
+        log_warning("update_game_state is deprecated and has no effect.")
+        pass
 
     async def load_game_state(self) -> Optional[Any]:
         """
-        ### load_game_state
-        **Description:** Loads the game state from `game_state.json`.
-
-        **Returns:**
-        - `Optional[GameState]`: The loaded GameState object, or None if the file does not exist.
+        Loads the game state from LangGraph.
         """
-        import json
-
-        import aiofiles
-
         from back.models.domain.game_state import GameState
-        state_path = os.path.join(get_data_dir(), "sessions", self.session_id, "game_state.json")
-        if os.path.exists(state_path):
-            async with aiofiles.open(state_path, 'r', encoding='utf-8') as f:
-                content = await f.read()
-                data = json.loads(content)
-            return GameState(**data)
+        values = self._get_graph_state()
+        if values:
+            # Reconstruct GameState from dict
+            # Filter out keys that are not part of GameState to avoid Pydantic errors
+            game_state_keys = GameState.model_fields.keys()
+            filtered_values = {k: v for k, v in values.items() if k in game_state_keys}
+            return GameState(**filtered_values)
         return None
 

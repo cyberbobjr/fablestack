@@ -3,6 +3,7 @@ aiofiles==23.2.1
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.3
 aiosignal==1.4.0
+aiosqlite
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anthropic==0.75.0
@@ -41,7 +42,7 @@ fakeredis==2.33.0
 fastapi==0.128.0
 fastapi-injector==0.9.0
 fastavro==1.12.1
-fastmcp==2.14.2
+
 filelock==3.20.3
 frozenlist==1.8.0
 fsspec==2026.1.0
@@ -127,7 +128,7 @@ pyperclip==1.11.0
 pytest==9.0.2
 pytest-asyncio==1.3.0
 python-dateutil==2.9.0.post0
-python-dotenv==1.0.1
+python-dotenv>=1.1.0
 python-jose==3.3.0
 python-json-logger==4.0.0
 python-multipart==0.0.9
@@ -142,7 +143,7 @@ rich-rst==1.3.2
 rpds-py==0.30.0
 rsa==4.9.1
 ruff==0.14.11
-runware==0.4.39
+
 s3transfer==0.16.0
 shellingham==1.5.4
 six==1.17.0
@@ -165,7 +166,11 @@ uvicorn==0.40.0
 uvloop==0.22.1
 watchfiles==1.1.1
 wcwidth==0.2.14
-websockets==15.0.1
+websockets
 wrapt==1.17.3
 yarl==1.22.0
 zipp==3.23.0
+langgraph
+langchain-core
+langchain-openai
+langgraph-checkpoint-sqlite
