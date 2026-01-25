@@ -4,7 +4,6 @@ Handles loading and saving of history, as well as character and scenario data.
 Refactored to use specialized services (Phase 3).
 """
 
-import os
 import pathlib
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
@@ -14,19 +13,19 @@ from pydantic_ai import ModelMessage
 from back.agents.translation_agent import TranslationAgent
 from back.config import get_data_dir
 from back.models.api.game import TimelineEvent
-from back.models.domain.combat_state import CombatState
 from back.models.domain.game_state import GameState
 from back.models.enums import CharacterStatus
-from back.models.service.dtos import (SessionMetadata, SessionStartResult,
-                                      SessionSummary)
+from back.models.service.dtos import SessionMetadata, SessionStartResult, SessionSummary
 from back.services.character_data_service import CharacterDataService
 from back.services.character_service import CharacterService
 from back.services.equipment_service import EquipmentService
 from back.services.races_data_service import RacesDataService
 from back.services.settings_service import SettingsService
-from back.storage.pydantic_jsonl_store import PydanticJsonlStore
-from back.utils.exceptions import (CharacterNotFoundError,
-                                   ScenarioNotFoundError, SessionNotFoundError)
+from back.utils.exceptions import (
+    CharacterNotFoundError,
+    ScenarioNotFoundError,
+    SessionNotFoundError,
+)
 from back.utils.logger import log_debug, log_warning
 
 # History types constants
@@ -41,12 +40,12 @@ class GameSessionService:
     Refactored to check LangGraph state for persistence, while keeping Metadata in files.
     """
     
-    def _get_graph_state(self) -> Optional[Dict[str, Any]]:
+    async def _get_graph_state(self) -> Optional[Dict[str, Any]]:
         """Helper to get the current graph state dictionary."""
         from back.agents.game_graph import build_game_graph
-        app = build_game_graph()
+        app = await build_game_graph()
         config = {"configurable": {"thread_id": self.session_id}}
-        state_snapshot = app.get_state(config)
+        state_snapshot = await app.aget_state(config)
         return state_snapshot.values if state_snapshot else None
 
     def __init__(self, session_id: str) -> None:
@@ -355,7 +354,7 @@ class GameSessionService:
 
         # Initialize GameState in LangGraph
         from back.agents.game_graph import build_game_graph
-        app = build_game_graph()
+        app = await build_game_graph()
         
         initial_game_state = GameState(
             character_uuid=str(character_id),
@@ -367,7 +366,7 @@ class GameSessionService:
         # We need to set the initial state. 
         # app.update_state allows setting the channels.
         config = {"configurable": {"thread_id": session_id}}
-        app.update_state(config, initial_game_state.model_dump())
+        await app.aupdate_state(config, initial_game_state.model_dump())
 
 
         log_debug("Scenario started", action="start_scenario", session_id=session_id, character_id=str(character_id), scenario_name=scenario_name)
@@ -555,7 +554,7 @@ class GameSessionService:
         """
         Loads TimelineEvent objects from LangGraph 'ui_messages'.
         """
-        values = self._get_graph_state()
+        values = await self._get_graph_state()
         if values:
             return values.get("ui_messages", [])
         return []
@@ -567,7 +566,7 @@ class GameSessionService:
 
     async def load_history_raw_json(self, kind: str) -> List[Dict[str, Any]]:
         """Deprecated/Adapted: Loads messages from LangGraph as dicts."""
-        values = self._get_graph_state()
+        values = await self._get_graph_state()
         if values and "messages" in values:
             return [m.model_dump() for m in values["messages"]]
         return []
@@ -587,7 +586,7 @@ class GameSessionService:
         But generally external usage of this was for Agent Execution.
         We return empty list here to avoid breaking type hints, but LogicOracleService uses state directly.
         """
-        values = self._get_graph_state()
+        values = await self._get_graph_state()
         if values and "messages" in values:
             # LangGraph messages are already BaseMessage, which ModelMessage can wrap
             return [ModelMessage(content=m.content, role=m.type) for m in values["messages"]]
@@ -618,7 +617,7 @@ class GameSessionService:
         Loads the game state from LangGraph.
         """
         from back.models.domain.game_state import GameState
-        values = self._get_graph_state()
+        values = await self._get_graph_state()
         if values:
             # Reconstruct GameState from dict
             # Filter out keys that are not part of GameState to avoid Pydantic errors

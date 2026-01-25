@@ -2,44 +2,70 @@
 LangGraph implementation for the FableStack Game Engine.
 Orchestrates the flow between Analysis, Oracle, Combat, Narrative, and Choice agents.
 """
-import sqlite3
-import json
-from datetime import datetime
-from typing import Dict, Any, List, Literal, cast, Callable
-import inspect
 import json
 import uuid
+from datetime import datetime
+from typing import Callable, Dict, List, Literal
 
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, AIMessage, ToolMessage, RemoveMessage
+import aiosqlite
+from langchain_core.messages import (
+    AIMessage,
+    HumanMessage,
+    RemoveMessage,
+    SystemMessage,
+    ToolMessage,
+)
 from langchain_core.runnables import RunnableConfig
 from langchain_openai import ChatOpenAI
-from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
-import aiosqlite
+from langgraph.graph import END, StateGraph
+from langgraph.prebuilt import tools_condition
 
 # PydanticAI / Context Imports
 from pydantic import BaseModel
 from pydantic_ai import RunContext
+
+from back.config import get_llm_config
+from back.models.api.game import ChoiceData, TextIntentResult, TimelineEvent
+from back.models.domain.game_state import GameState
+from back.models.enums import TimelineEventType
+
+# --- Import Tools ---
+from back.tools.character_tools import (
+    character_add_currency,
+    character_apply_xp,
+    character_heal,
+    character_remove_currency,
+    character_take_damage,
+)
+from back.tools.combat_tools import (
+    check_combat_end_tool,
+    declare_combat_start_tool,
+    end_combat_tool,
+    end_turn_tool,
+    execute_attack_tool,
+    get_combat_status_tool,
+    search_enemy_archetype_tool,
+    start_combat_tool,
+)
+from back.tools.equipment_tools import (
+    check_inventory_quantity,
+    find_or_create_item_tool,
+    inventory_add_item,
+    inventory_decrease_quantity,
+    inventory_increase_quantity,
+    inventory_remove_item,
+    inventory_sell_item,
+    list_available_equipment,
+)
+from back.tools.scenario_tools import end_scenario_tool
+from back.tools.skill_tools import skill_check_with_character
+from back.utils.logger import log_error, logger
+
 # We need a protocol or class for the dependencies
 # from back.services.game_session_service import GameSessionService # Circular import risk, use Any or Protocol
 
-from back.config import get_llm_config
-from back.models.domain.game_state import GameState
-from back.models.api.game import TimelineEvent, TextIntentResult, LogicResult, ChoiceData
-from back.models.enums import TimelineEventType
-from back.utils.logger import logger, log_error
 
-# --- Import Tools ---
-from back.tools.character_tools import (character_add_currency, character_apply_xp, character_heal,
-                                        character_remove_currency, character_take_damage)
-from back.tools.combat_tools import (declare_combat_start_tool, check_combat_end_tool, end_combat_tool,
-                                     end_turn_tool, execute_attack_tool, get_combat_status_tool,
-                                     search_enemy_archetype_tool, start_combat_tool)
-from back.tools.equipment_tools import (check_inventory_quantity, find_or_create_item_tool, inventory_add_item,
-                                        inventory_decrease_quantity, inventory_increase_quantity,
-                                        inventory_remove_item, inventory_sell_item, list_available_equipment)
-from back.tools.scenario_tools import end_scenario_tool
-from back.tools.skill_tools import skill_check_with_character
 
 # --- Constants ---
 MAX_HISTORY_LENGTH = 20 # Number of messages before summarization trigger
@@ -416,6 +442,13 @@ def should_summarize(state: GameState) -> Literal["summarization_node", "end"]:
     return "end"
 
 
+def route_after_tools(state: GameState) -> Literal["combat_node", "narrative_node"]:
+    """Routes back to combat or narrative after tool execution."""
+    if state.session_mode == "combat":
+        return "combat_node"
+    return "narrative_node"
+
+
 # --- Graph Construction ---
 
 async def build_game_graph():
@@ -485,5 +518,10 @@ async def build_game_graph():
     conn = await aiosqlite.connect("game_state.db", check_same_thread=False)
     memory = AsyncSqliteSaver(conn)
     
-    return workflow.compile(checkpointer=memory)
+    graph = workflow.compile(checkpointer=memory)
+    graph_png = graph.get_graph().draw_mermaid_png()
+
+    with open("graph.png", "wb") as f:
+        f.write(graph_png)
+    return graph
 
