@@ -173,4 +173,4 @@ zipp==3.23.0
 langgraph
 langchain-core
 langchain-openai
-langgraph-checkpoint-sqlite
+langgraph-checkpoint-sqlite==3.0.3

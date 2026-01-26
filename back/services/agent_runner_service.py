@@ -7,7 +7,8 @@ if TYPE_CHECKING:
     from back.services.game_session_service import GameSessionService
 
 from back.config import get_llm_config
-from back.models.api.game import LogicResult, PlayerInput, TimelineEvent
+from back.factories.agent_factory import AgentFactory
+from back.models.api.game import PlayerInput, TimelineEvent
 from back.utils.logger import log_error
 
 
@@ -20,19 +21,22 @@ class AgentRunnerService:
     the NarrativeAgent, and presenting choices to the player via the ChoiceAgent.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, agent_factory: AgentFactory) -> None:
         """
         Initializes the AgentRunnerService.
 
         Sets up the necessary services and agents (LogicOracleService, NarrativeAgent, OracleAgent).
         ChoiceAgent is initialized lazily to avoid circular dependencies.
+        
+        Args:
+            agent_factory: Factory for creating agents with injected configuration
         """
         # Initialize services/agents that are stateless or config-based
         from back.agents.narrative_agent import NarrativeAgent
         from back.agents.oracle_agent import OracleAgent
         from back.services.logic_oracle_service import LogicOracleService
         llm_config = get_llm_config()
-        self.logic_oracle_service = LogicOracleService()  # No OracleAgent dependency
+        self.logic_oracle_service = LogicOracleService(agent_factory)
         self.narrative_agent = NarrativeAgent(llm_config)
         self.oracle_agent = OracleAgent(llm_config)
         # self.choice_agent = ChoiceAgent(llm_config) # Initialize later or lazily if needed
@@ -95,50 +99,67 @@ class AgentRunnerService:
                 )
                 await session_service.save_timeline_events([user_event])
 
-            # 1. Oracle Execution
+            # 1. Oracle Execution with Streaming
             yield f"data: {json.dumps({'type': 'stream_start', 'phase': 'logic'})}\n\n"
     
             # Get history for Oracle
             oracle_history = await session_service.get_last_n_messages("narrative", 10)
 
-            # Use OracleAgent initialized in this service (same pattern as NarrativeAgent)
-            logic_result : LogicResult = await self.logic_oracle_service.resolve_turn(
+            # Stream the logic resolution using LangGraph streaming
+            all_logs = []
+            narrative_context = ""
+            
+            async for logic_chunk in self.logic_oracle_service.resolve_turn_stream(
                 str(session_id),
                 player_input,
                 session_service,
                 self.oracle_agent,
                 history_messages=oracle_history
-            )
+            ):
+                # Stream node updates (e.g., oracle_node, combat_node, etc.)
+                if logic_chunk["type"] == "node":
+                    node_event = {
+                        "type": "node_update",
+                        "node_name": logic_chunk["node_name"],
+                        "phase": "logic"
+                    }
+                    yield f"data: {json.dumps(node_event)}\n\n"
+                
+                # Stream logs as they are generated
+                elif logic_chunk["type"] == "log":
+                    log = logic_chunk["log"]
+                    # Ensure timestamp if missing
+                    if not log.timestamp:
+                        log.timestamp = datetime.now(timezone.utc).isoformat()
 
-            # 2. Stream Logs AND Persist
-            for log in logic_result.logs:
-                # Ensure timestamp if missing
-                if not log.timestamp:
-                    log.timestamp = datetime.now(timezone.utc).isoformat()
+                    # Build event data with specific TimelineEvent type
+                    event_data = {
+                        "type": log.type,
+                        "content": log.content,
+                        "icon": log.icon
+                    }
 
-                # Build event data with specific TimelineEvent type
-                event_data = {
-                    "type": log.type,  # Use the specific TimelineEvent type
-                    "content": log.content,
-                    "icon": log.icon
-                }
+                    # Add metadata if present
+                    if log.metadata:
+                        event_data["metadata"] = log.metadata
 
-                # Add metadata if present (for structured event types like SKILL_CHECK, ITEM_ADDED, etc.)
-                if log.metadata:
-                    event_data["metadata"] = log.metadata
-
-                yield f"data: {json.dumps(event_data)}\n\n"
+                    yield f"data: {json.dumps(event_data)}\n\n"
+                    all_logs.append(log)
+                
+                # Capture narrative context
+                elif logic_chunk["type"] == "narrative_context":
+                    narrative_context = logic_chunk["content"]
 
             # Persist Logs
-            if logic_result.logs:
-                await session_service.save_timeline_events(logic_result.logs)
+            if all_logs:
+                await session_service.save_timeline_events(all_logs)
 
             # 3. Narrative Generation
             yield f"data: {json.dumps({'type': 'phase_change', 'phase': 'narrative'})}\n\n"
 
             augmented_prompt = (
                 f"[PLAYER ACTION]: {player_action_text}\n\n"
-                f"[SYSTEM REALITY]: {logic_result.narrative_context}\n\n\n"
+                f"[SYSTEM REALITY]: {narrative_context}\n\n\n"
                 f"INSTRUCTION: Based on PLAYER ACTION and the SYSTEM REALITY above, "
                 f"describe the scene and outcome to the player in an immersive style. "
                 f"Do not change the facts established in reality."
@@ -174,7 +195,7 @@ class AgentRunnerService:
             await session_service.save_timeline_events([narrative_event])
 
             # 4. Choices
-            context_for_choices = logic_result.narrative_context
+            context_for_choices = narrative_context
 
             # Add generated narrative
             context_for_choices += f"\n\n[NARRATIVE]: {generated_text}\n\n"

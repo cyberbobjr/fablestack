@@ -6,6 +6,8 @@ from fastapi_injector import attach_injector
 from injector import Binder, Injector, Module, SingletonScope
 
 from back.agents.translation_agent import TranslationAgent
+from back.config import get_llm_config
+from back.factories.agent_factory import AgentFactory
 from back.interfaces.user_manager_protocol import UserManagerProtocol
 from back.models.domain.equipment_manager import EquipmentManager
 from back.models.domain.races_manager import RacesManager
@@ -33,6 +35,10 @@ class ServiceModule(Module):
         binder.bind(RacesManager, to=RacesManager, scope=SingletonScope)
         binder.bind(StatsManager, to=StatsManager, scope=SingletonScope)
         binder.bind(UnifiedSkillsManager, to=UnifiedSkillsManager, scope=SingletonScope)
+        
+        # Factories
+        agent_factory_instance = AgentFactory(model_config=get_llm_config())
+        binder.bind(AgentFactory, to=agent_factory_instance, scope=SingletonScope)
         
         # Services
         binder.bind(CharacterDataService, to=CharacterDataService, scope=SingletonScope)

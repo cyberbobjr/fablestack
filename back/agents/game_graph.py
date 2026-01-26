@@ -5,7 +5,7 @@ Orchestrates the flow between Analysis, Oracle, Combat, Narrative, and Choice ag
 import json
 import uuid
 from datetime import datetime
-from typing import Callable, Dict, List, Literal
+from typing import List, Literal
 
 import aiosqlite
 from langchain_core.messages import (
@@ -16,7 +16,6 @@ from langchain_core.messages import (
     ToolMessage,
 )
 from langchain_core.runnables import RunnableConfig
-from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import tools_condition
@@ -25,8 +24,8 @@ from langgraph.prebuilt import tools_condition
 from pydantic import BaseModel
 from pydantic_ai import RunContext
 
-from back.config import get_llm_config
-from back.models.api.game import ChoiceData, TextIntentResult, TimelineEvent
+from back.factories.agent_factory import AgentFactory
+from back.models.api.game import ChoiceData, TimelineEvent
 from back.models.domain.game_state import GameState
 from back.models.enums import TimelineEventType
 
@@ -70,34 +69,9 @@ from back.utils.logger import log_error, logger
 # --- Constants ---
 MAX_HISTORY_LENGTH = 20 # Number of messages before summarization trigger
 
-# --- Helper Functions ---
-
-def get_cleaned_tool_definitions(tools: List[Callable]) -> List[Dict]:
-    """
-    Generates OpenAI-compatible tool definitions, stripping the 'ctx' argument
-    that PydanticAI tools expect.
-    """
-    definitions = []
-    # We can use LangChain's utils or pydantic to generate schema, 
-    # but simplest is to use langchain_core.utils.function_calling.convert_to_openai_tool
-    # and then manually remove 'ctx' from properties.
-    from langchain_core.utils.function_calling import convert_to_openai_tool
-    
-    for tool in tools:
-        schema = convert_to_openai_tool(tool)
-        # Check parameters
-        if "function" in schema and "parameters" in schema["function"]:
-            params = schema["function"]["parameters"]
-            if "properties" in params and "ctx" in params["properties"]:
-                del params["properties"]["ctx"]
-            if "required" in params and "ctx" in params["required"]:
-                params["required"].remove("ctx")
-        definitions.append(schema)
-    return definitions
-
 # --- Node Implementations ---
 
-async def analysis_node(state: GameState):
+async def analysis_node(state: GameState, config: RunnableConfig):
     """
     Analyzes the latest user message to determine intent and potential skill checks.
     """
@@ -108,12 +82,21 @@ async def analysis_node(state: GameState):
     if not last_message:
         return {} # No new input to analyze
 
-    llm_config = get_llm_config()
-    model = ChatOpenAI(model=llm_config.model, api_key=llm_config.api_key, base_url=llm_config.api_endpoint)
+    from back.agents.text_analysis_agent import TextAnalysisAgent
     
-    # Simple structured output for intent
-    analyzed = model.with_structured_output(TextIntentResult).invoke(
-        f"Analyze this player action for skill checks: '{last_message.content}'"
+    agent_factory = config.get("configurable", {}).get("agent_factory")
+    if not agent_factory:
+        log_error("AgentFactory not found in runnable config")
+        return {}
+        
+    agent = TextAnalysisAgent(agent_factory)
+    
+    # Use the specialized agent for analysis
+    # We pass None for deps as they are not used in the new implementation (or we can pass session service if needed later)
+    analyzed = await agent.analyze(
+        text_content=last_message.content,
+        deps=None,
+        history_messages=state.messages[:-1]
     )
 
     # Log analysis result to UI if there's a skill check needed
@@ -133,15 +116,17 @@ async def analysis_node(state: GameState):
     }
 
 
-async def oracle_node(state: GameState):
+async def oracle_node(state: GameState, config: RunnableConfig):
     """
     Handles Narrative/Adventure logic (Non-Combat).
     Executes tools and determines consequences.
     """
     logger.info("--- Oracle Node ---")
     
-    llm_config = get_llm_config()
-    model = ChatOpenAI(model=llm_config.model, api_key=llm_config.api_key, base_url=llm_config.api_endpoint)
+    agent_factory = config.get("configurable", {}).get("agent_factory")
+    if not agent_factory:
+        log_error("AgentFactory not found in runnable config")
+        return {}
     
     # Bind tools with CLEANED schema
     tools = [
@@ -150,8 +135,7 @@ async def oracle_node(state: GameState):
         list_available_equipment, character_add_currency, character_remove_currency, character_heal,
         character_take_damage, character_apply_xp, skill_check_with_character, end_scenario_tool
     ]
-    tool_defs = get_cleaned_tool_definitions(tools)
-    model_with_tools = model.bind_tools(tool_defs)
+    agent = agent_factory.create_agent(tools=tools)
     
     # Context Construction
     analysis = state.processing_meta.get("analysis", {})
@@ -173,26 +157,27 @@ async def oracle_node(state: GameState):
     
     messages = [SystemMessage(content=system_prompt)] + state.messages
     
-    response = await model_with_tools.ainvoke(messages)
+    response = await agent.invoke(messages)
     
     return {"messages": [response]}
 
 
-async def combat_node(state: GameState):
+async def combat_node(state: GameState, config: RunnableConfig):
     """
     Handles Round-based Tactical Combat.
     """
     logger.info("--- Combat Node ---")
     
-    llm_config = get_llm_config()
-    model = ChatOpenAI(model=llm_config.model, api_key=llm_config.api_key, base_url=llm_config.api_endpoint)
+    agent_factory = config.get("configurable", {}).get("agent_factory")
+    if not agent_factory:
+        log_error("AgentFactory not found in runnable config")
+        return {}
     
     tools = [
         start_combat_tool, execute_attack_tool, end_turn_tool, check_combat_end_tool,
         end_combat_tool, get_combat_status_tool, search_enemy_archetype_tool, skill_check_with_character
     ]
-    tool_defs = get_cleaned_tool_definitions(tools)
-    model_with_tools = model.bind_tools(tool_defs)
+    agent = agent_factory.create_agent(tools=tools)
     
     combat_state = state.combat_state
     
@@ -211,20 +196,22 @@ async def combat_node(state: GameState):
     )
     
     messages = [SystemMessage(content=system_prompt)] + state.messages
-    response = await model_with_tools.ainvoke(messages)
+    response = await agent.invoke(messages)
     
     return {"messages": [response]}
 
 
 
-async def choice_node(state: GameState):
+async def choice_node(state: GameState, config: RunnableConfig):
     """
     Generates 3-4 options for the player based on the current context.
     """
     logger.info("--- Choice Node ---")
     
-    llm_config = get_llm_config()
-    model = ChatOpenAI(model=llm_config.model, api_key=llm_config.api_key, base_url=llm_config.api_endpoint)
+    agent_factory = config.get("configurable", {}).get("agent_factory")
+    if not agent_factory:
+        log_error("AgentFactory not found in runnable config")
+        return {}
     
     messages = state.messages
     char_context = ""
@@ -241,7 +228,9 @@ async def choice_node(state: GameState):
     class ChoicesOutput(BaseModel):
         choices: List[ChoiceData]
 
-    response = await model.with_structured_output(ChoicesOutput).ainvoke(
+    agent = agent_factory.create_agent(structured_output=ChoicesOutput)
+    
+    response = await agent.invoke(
         [SystemMessage(content=system_prompt)] + messages
     )
     
@@ -256,14 +245,16 @@ async def choice_node(state: GameState):
     return {"ui_messages": [event]}
 
 
-async def summarization_node(state: GameState):
+async def summarization_node(state: GameState, config: RunnableConfig):
     """
     Summarizes older messages to save context window.
     """
     logger.info("--- Summarization Node ---")
     
-    llm_config = get_llm_config()
-    model = ChatOpenAI(model=llm_config.model, api_key=llm_config.api_key, base_url=llm_config.api_endpoint)
+    agent_factory = config.get("configurable", {}).get("agent_factory")
+    if not agent_factory:
+        log_error("AgentFactory not found in runnable config")
+        return {}
     
     # Keep last 5 messages, summarize the rest
     messages = state.messages
@@ -274,7 +265,9 @@ async def summarization_node(state: GameState):
         
         summary_prompt = "Summarize the conversation so far, focusing on key events and current status."
         
-        summary_response = await model.ainvoke([
+        agent = agent_factory.create_agent()
+        
+        summary_response = await agent.invoke([
             SystemMessage(content=summary_prompt),
             *messages_to_summarize
         ])
@@ -293,17 +286,20 @@ async def summarization_node(state: GameState):
     return {}
 
 
-async def narrative_node(state: GameState):
+async def narrative_node(state: GameState, config: RunnableConfig):
     """
     Generates the immersive story description based on the system events.
     """
     logger.info("--- Narrative Node ---")
     
-    llm_config = get_llm_config()
-    model = ChatOpenAI(model=llm_config.model, api_key=llm_config.api_key, base_url=llm_config.api_endpoint)
-
-    last_ai_msg = state.messages[-1]
+    agent_factory = config.get("configurable", {}).get("agent_factory")
+    if not agent_factory:
+        log_error("AgentFactory not found in runnable config")
+        return {}
     
+    agent = agent_factory.create_agent()
+
+   
     char_context = ""
     if state.character:
         char_context = state.character.build_narrative_prompt_block()
@@ -317,7 +313,7 @@ async def narrative_node(state: GameState):
     )
     
     messages = [SystemMessage(content=system_prompt)] + state.messages
-    response = await model.ainvoke(messages)
+    response = await agent.invoke(messages)
     
     # Extract text and create a UI event for it
     narrative_text = response.content

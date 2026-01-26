@@ -1,8 +1,6 @@
 import os
 import shutil
-from logging import basicConfig
 from pathlib import Path
-from uuid import uuid4
 
 import logfire
 import pytest
@@ -168,8 +166,18 @@ async def admin_token(async_client):
         # Ensure role is admin (critical for tests)
         if existing.role != UserRole.ADMIN:
             existing.role = UserRole.ADMIN
-            await user_manager.update(existing)
-    
-    # Login
+# Login
     response = await async_client.post("/api/auth/token", data={"username": email, "password": pwd})
     return response.json()["access_token"]
+
+
+@pytest.fixture
+def mock_agent_factory():
+    """
+    Provides a mock AgentFactory for testing.
+    """
+    from unittest.mock import MagicMock
+    from back.factories.agent_factory import AgentFactory
+    
+    factory = MagicMock(spec=AgentFactory)
+    return factory

@@ -8,7 +8,8 @@ import pathlib
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-from pydantic_ai import ModelMessage
+from langchain_core.messages import BaseMessage
+from langchain_core.runnables import RunnableConfig
 
 from back.agents.translation_agent import TranslationAgent
 from back.config import get_data_dir
@@ -44,7 +45,7 @@ class GameSessionService:
         """Helper to get the current graph state dictionary."""
         from back.agents.game_graph import build_game_graph
         app = await build_game_graph()
-        config = {"configurable": {"thread_id": self.session_id}}
+        config: RunnableConfig = {"configurable": {"thread_id": self.session_id}}  # type: ignore
         state_snapshot = await app.aget_state(config)
         return state_snapshot.values if state_snapshot else None
 
@@ -365,7 +366,7 @@ class GameSessionService:
         
         # We need to set the initial state. 
         # app.update_state allows setting the channels.
-        config = {"configurable": {"thread_id": session_id}}
+        config: RunnableConfig = {"configurable": {"thread_id": session_id}}  # type: ignore
         await app.aupdate_state(config, initial_game_state.model_dump())
 
 
@@ -571,28 +572,22 @@ class GameSessionService:
             return [m.model_dump() for m in values["messages"]]
         return []
 
-    async def save_history_llm(self, kind: str, messages: List[ModelMessage]) -> None:
+    async def save_history_llm(self, kind: str, messages: List[BaseMessage]) -> None:
         """Deprecated."""
         log_warning("save_history_llm is deprecated and has no effect.")
         pass
 
-    async def load_history_llm(self, kind: str) -> List[ModelMessage]:
+    async def load_history_llm(self, kind: str) -> List[BaseMessage]:
         """
         Loads the summarized message history for LLM context from LangGraph.
-        Returns them as PydanticAI ModelMessages (if possible) or BaseMessage?
-        The callers expect PydanticAI ModelMessage?
-        The caller is usually LogicOracleService, which we refactored.
-        If there are other callers, they might break.
-        But generally external usage of this was for Agent Execution.
-        We return empty list here to avoid breaking type hints, but LogicOracleService uses state directly.
+        Returns them as LangChain BaseMessage objects.
         """
         values = await self._get_graph_state()
         if values and "messages" in values:
-            # LangGraph messages are already BaseMessage, which ModelMessage can wrap
-            return [ModelMessage(content=m.content, role=m.type) for m in values["messages"]]
+            return values["messages"]
         return [] 
 
-    async def get_last_n_messages(self, kind: str, n: int) -> List[ModelMessage]:
+    async def get_last_n_messages(self, kind: str, n: int) -> List[BaseMessage]:
         """
         ### get_last_n_messages
         **Description:** Retrieves the last n messages from the LLM history.
@@ -602,7 +597,7 @@ class GameSessionService:
         - `n` (int): The number of messages to retrieve.
 
         **Returns:**
-        - `List[ModelMessage]`: A list of the last n `ModelMessage` objects.
+        - `List[BaseMessage]`: A list of the last n `BaseMessage` objects.
         """
         history = await self.load_history_llm(kind)
         return history[-n:] if history else []
